@@ -3,7 +3,7 @@
 import { Region } from "@medusajs/medusa"
 import { PricedProduct } from "@medusajs/medusa/dist/types/pricing"
 import { Button } from "@medusajs/ui"
-import { isEqual } from "lodash"
+import { isEqual, toInteger } from "lodash"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
@@ -39,6 +39,7 @@ export default function ProductActions({
   const countryCode = useParams().countryCode as string
 
   const variants = product.variants
+  // console.log(product.metadata.minimumbuy);
 
   // initialize the option state
   useEffect(() => {
@@ -128,8 +129,9 @@ export default function ProductActions({
 
     await addToCart({
       variantId: variant.id,
-      quantity: 1,
+      quantity: product.metadata ? toInteger(product.metadata.minimumbuy) : 1 ,
       countryCode,
+  
     })
 
     setIsAdding(false)

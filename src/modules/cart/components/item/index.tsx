@@ -14,6 +14,8 @@ import Spinner from "@modules/common/icons/spinner"
 import { useState } from "react"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { metadata } from "app/layout"
+import { toInteger } from "lodash"
 
 type ItemProps = {
   item: Omit<LineItem, "beforeInsert">
@@ -26,6 +28,9 @@ const Item = ({ item, region, type = "full" }: ItemProps) => {
   const [error, setError] = useState<string | null>(null)
 
   const { handle } = item.variant.product
+
+    let minimumbuy = toInteger ( item.variant.product.metadata.minimumbuy ) ;
+    console.log(minimumbuy);
 
   const changeQuantity = async (quantity: number) => {
     setError(null)
@@ -54,6 +59,8 @@ const Item = ({ item, region, type = "full" }: ItemProps) => {
             "w-16": type === "preview",
             "small:w-24 w-12": type === "full",
           })}
+
+        
         >
           <Thumbnail thumbnail={item.thumbnail} size="square" />
         </LocalizedClientLink>
@@ -74,21 +81,19 @@ const Item = ({ item, region, type = "full" }: ItemProps) => {
               className="w-14 h-10 p-4"
               data-testid="product-select-button"
             >
-              {Array.from(
-                {
-                  length: Math.min(
-                    item.variant.inventory_quantity > 0
-                      ? item.variant.inventory_quantity
-                      : 10,
-                    10
-                  ),
-                },
-                (_, i) => (
-                  <option value={i + 1} key={i}>
-                    {i + 1}
-                  </option>
-                )
-              )}
+             {Array.from(
+  {
+    length: Math.max(
+      0,
+      item.variant.inventory_quantity - minimumbuy + 1
+    ),
+  },
+  (_, i) => (
+    <option value={minimumbuy + i} key={i}>
+      {minimumbuy + i} 
+    </option>
+  ) 
+)}
             </CartItemSelect>
             {updating && <Spinner />}
           </div>
